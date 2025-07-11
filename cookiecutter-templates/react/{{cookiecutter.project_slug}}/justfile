@@ -1,0 +1,97 @@
+# {{cookiecutter.project_name}} justfile
+# Run with: just <command>
+
+# Default recipe to run when no arguments are provided
+default:
+    @just --list
+
+# Check if tilt is installed
+_check-tilt:
+    #!/usr/bin/env bash
+    if ! command -v tilt &> /dev/null; then
+        echo "Error: tilt is not installed. Please install tilt first."
+        echo "Visit: https://docs.tilt.dev/install.html"
+        exit 1
+    fi
+
+# Check if docker is installed
+_check-docker:
+    #!/usr/bin/env bash
+    if ! command -v docker &> /dev/null; then
+        echo "Error: docker is not installed. Please install docker first."
+        exit 1
+    fi
+
+# Development commands
+dev: _check-tilt
+    tilt up
+
+dev-stop: _check-tilt
+    tilt down
+
+# Build commands
+build: _check-docker
+    docker build -t {{cookiecutter.project_slug}}-app:latest .
+
+build-dev: _check-docker
+    docker build --target development -t {{cookiecutter.project_slug}}-app:dev .
+
+# Test commands
+test:
+    npm test
+
+test-watch:
+    npm run test:ui
+
+test-coverage:
+    npm run test:coverage
+
+# Linting and formatting
+lint:
+    npm run lint
+
+lint-fix:
+    npm run lint:fix
+
+format:
+    npm run format
+
+format-check:
+    npm run format:check
+
+# Type checking
+type-check:
+    npm run type-check
+
+# Storybook
+storybook:
+    npm run storybook
+
+build-storybook:
+    npm run build-storybook
+
+# Clean up
+clean:
+    rm -rf node_modules/
+    rm -rf dist/
+    rm -rf .storybook-static/
+    rm -rf coverage/
+
+# Install dependencies
+install:
+    npm install
+
+install-dev:
+    npm install
+
+# Run the application locally
+run:
+    npm run dev
+
+# Build for production
+build-prod:
+    npm run build
+
+# Preview production build
+preview:
+    npm run preview 

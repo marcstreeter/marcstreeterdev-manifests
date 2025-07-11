@@ -1,0 +1,96 @@
+name: Update Services from Central Template
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cookiecutter-templates/**'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update all services (even if no changes)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  update-services:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service_type: [backend, frontend]
+    
+    steps:
+      - name: Checkout manifests repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: manifests
+
+      - name: Checkout service repositories
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ matrix.service_type }}
+          repository: marcstreeter/marcstreeterdev-${{ matrix.service_type }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Cruft
+        run: |
+          python -m pip install --upgrade pip
+          pip install cruft
+
+      - name: Check for template updates
+        id: check-updates
+        run: |
+          cd ${{ matrix.service_type }}
+          if [ -f ".cruft.json" ]; then
+            echo "Checking for updates in ${{ matrix.service_type }}..."
+            if cruft check; then
+              echo "updates_needed=false" >> $GITHUB_OUTPUT
+            else
+              echo "updates_needed=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No .cruft.json found, skipping..."
+            echo "updates_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update service from template
+        if: steps.check-updates.outputs.updates_needed == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          cd ${{ matrix.service_type }}
+          if [ -f ".cruft.json" ]; then
+            echo "Updating ${{ matrix.service_type }} from central template..."
+            cruft update --skip-apply-ask --refresh-private-variables
+          fi
+
+      - name: Commit and push changes
+        if: steps.check-updates.outputs.updates_needed == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          cd ${{ matrix.service_type }}
+          if [ -n "$(git status --porcelain)" ]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .
+            git commit -m "chore: update from central template [skip ci]"
+            git push
+          fi
+
+  notify-updates:
+    needs: update-services
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Notify on updates
+        run: |
+          if [ "${{ needs.update-services.result }}" == "success" ]; then
+            echo "✅ Services updated successfully from central template"
+          else
+            echo "⚠️  Service update job completed with status: ${{ needs.update-services.result }}"
+          fi 

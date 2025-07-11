@@ -1,0 +1,93 @@
+# {{cookiecutter.project_name}} justfile
+# Run with: just <command>
+
+# Default recipe to run when no arguments are provided
+default:
+    @just --list
+
+# Check if tilt is installed
+_check-tilt:
+    #!/usr/bin/env bash
+    if ! command -v tilt &> /dev/null; then
+        echo "Error: tilt is not installed. Please install tilt first."
+        echo "Visit: https://docs.tilt.dev/install.html"
+        exit 1
+    fi
+
+# Check if docker is installed
+_check-docker:
+    #!/usr/bin/env bash
+    if ! command -v docker &> /dev/null; then
+        echo "Error: docker is not installed. Please install docker first."
+        exit 1
+    fi
+
+# Development commands
+dev: _check-tilt
+    tilt up
+
+dev-stop: _check-tilt
+    tilt down
+
+# Build commands
+build: _check-docker
+    docker build -t {{cookiecutter.project_slug}}-app:latest .
+
+build-dev: _check-docker
+    docker build --target development -t {{cookiecutter.project_slug}}-app:dev .
+
+# Test commands
+test:
+    pytest
+
+test-watch:
+    pytest --watch
+
+test-coverage:
+    pytest --cov={{cookiecutter.project_slug}} --cov-report=html
+
+# Linting and formatting
+lint:
+    black src/ tests/
+    isort src/ tests/
+    flake8 src/ tests/
+
+lint-check:
+    black --check src/ tests/
+    isort --check-only src/ tests/
+    flake8 src/ tests/
+
+# Type checking
+type-check:
+    mypy src/
+
+# Pre-commit
+pre-commit:
+    pre-commit run --all-files
+
+pre-commit-install:
+    pre-commit install
+
+# Clean up
+clean:
+    find . -type f -name "*.pyc" -delete
+    find . -type d -name "__pycache__" -delete
+    find . -type d -name "*.egg-info" -exec rm -rf {} +
+    rm -rf .pytest_cache/
+    rm -rf htmlcov/
+    rm -rf .coverage
+
+# Install dependencies
+install:
+    uv sync
+
+install-dev:
+    uv sync --extra dev
+
+# Run the application locally
+run:
+    uvicorn {{cookiecutter.project_slug}}.main:app --reload --host 0.0.0.0 --port 8000
+
+# Debug mode
+debug:
+    python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m uvicorn {{cookiecutter.project_slug}}.main:app --reload --host 0.0.0.0 --port 8000 

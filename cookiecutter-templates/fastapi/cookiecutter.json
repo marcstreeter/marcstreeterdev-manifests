@@ -1,0 +1,19 @@
+{
+    "project_name": "marcstreeterdev-{{cookiecutter.project_type}}",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace('-', '_').replace(' ', '_') }}",
+    "project_description": "A {{cookiecutter.project_type}} service for marcstreeterdev",
+    "project_type": "fastapi",
+    "author_name": "Marc Streeter",
+    "author_email": "marc@marcstreeter.dev",
+    "github_username": "marcstreeter",
+    "python_version": "3.11",
+    "use_docker": "y",
+    "use_helm": "y",
+    "use_tilt": "y",
+    "use_just": "y",
+    "use_pre_commit": "y",
+    "use_tests": "y",
+    "use_linting": "y",
+    "use_debugging": "y",
+    "open_source_license": "MIT"
+} 

@@ -1,0 +1,13 @@
+# Allow users to specify the location of the service repos, defaulting to siblings
+backend_path = os.getenv("MSD_BACKEND_REPO", "../marcstreeterdev-backend")
+frontend_path = os.getenv("MSD_FRONTEND_REPO", "../marcstreeterdev-frontend")
+
+# Optionally, print a warning if the paths don't exist
+if not os.path.exists(backend_path):
+    print("Warning: Backend repo not found at %s" % backend_path)
+if not os.path.exists(frontend_path):
+    print("Warning: Frontend repo not found at %s" % frontend_path)
+
+# Include the service Tiltfiles
+include(backend_path + "/tiltfile")
+include(frontend_path + "/tiltfile") 

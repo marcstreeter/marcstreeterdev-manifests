@@ -1,0 +1,134 @@
+name: Update All Services from Central Template
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cookiecutter-templates/**'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update all services (even if no changes)'
+        required: false
+        default: false
+        type: boolean
+      service_filter:
+        description: 'Comma-separated list of services to update (leave empty for all)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  discover-services:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.discover.outputs.services }}
+    
+    steps:
+      - name: Checkout manifests repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Discover services
+        id: discover
+        run: |
+          # Get list of marcstreeterdev repositories from GitHub API
+          SERVICES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/users/marcstreeter/repos?per_page=100" | \
+            jq -r '.[] | select(.name | startswith("marcstreeterdev-")) | .name' | \
+            grep -v "marcstreeterdev-manifests" | \
+            tr '\n' ',' | sed 's/,$//')
+          
+          echo "services=$SERVICES" >> $GITHUB_OUTPUT
+          echo "Discovered services: $SERVICES"
+
+  update-services:
+    needs: discover-services
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ${{ fromJson(format('[{0}]', needs.discover-services.outputs.services)) }}
+      fail-fast: false
+    
+    steps:
+      - name: Checkout manifests repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: manifests
+
+      - name: Checkout service repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: service
+          repository: marcstreeter/${{ matrix.service }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Cruft
+        run: |
+          python -m pip install --upgrade pip
+          pip install cruft
+
+      - name: Check for template updates
+        id: check-updates
+        run: |
+          cd service
+          if [ -f ".cruft.json" ]; then
+            echo "Checking for updates in ${{ matrix.service }}..."
+            if cruft check; then
+              echo "updates_needed=false" >> $GITHUB_OUTPUT
+              echo "✅ ${{ matrix.service }} is up to date"
+            else
+              echo "updates_needed=true" >> $GITHUB_OUTPUT
+              echo "⚠️  ${{ matrix.service }} needs updates"
+            fi
+          else
+            echo "No .cruft.json found in ${{ matrix.service }}, skipping..."
+            echo "updates_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update service from template
+        if: steps.check-updates.outputs.updates_needed == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          cd service
+          if [ -f ".cruft.json" ]; then
+            echo "Updating ${{ matrix.service }} from central template..."
+            cruft update --skip-apply-ask --refresh-private-variables
+          fi
+
+      - name: Commit and push changes
+        if: steps.check-updates.outputs.updates_needed == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          cd service
+          if [ -n "$(git status --porcelain)" ]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .
+            git commit -m "chore: update from central template [skip ci]"
+            git push
+            echo "✅ ${{ matrix.service }} updated and pushed"
+          else
+            echo "ℹ️  No changes to commit for ${{ matrix.service }}"
+          fi
+
+  summary:
+    needs: [discover-services, update-services]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Service Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Services discovered:** ${{ needs.discover-services.outputs.services }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Update results:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Total services processed: ${{ needs.update-services.result == 'success' && 'All' || 'Some' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ needs.update-services.result }}" >> $GITHUB_STEP_SUMMARY 
