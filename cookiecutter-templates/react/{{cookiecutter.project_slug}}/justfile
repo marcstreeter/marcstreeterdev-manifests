@@ -22,16 +22,39 @@ _check-docker:
         exit 1
     fi
 
+# Check if kubectl is installed
+_check-kubectl:
+    #!/usr/bin/env bash
+    if ! command -v kubectl &> /dev/null; then
+        echo "Error: kubectl is not installed. Please install kubectl first."
+        echo "Visit: https://kubernetes.io/docs/tasks/tools/"
+        exit 1
+    fi
+
+setup: _check-docker _check-tilt _check-kubectl
+    @echo "🔧 Setting up development environment..."
+    @echo "Installing dependencies..."
+    npm ci
+    @echo "Installing git hooks..."
+    npx lefthook install
+    @echo "✅ Development setup complete!"
+
 # Development with Tilt (recommended)
-dev: _check-tilt
+start: _check-docker _check-tilt _check-kubectl
     @echo "Starting development environment with Tilt..."
     @echo "This will start the app in a container with live reloading."
     @echo "Access the app at: http://localhost:{{cookiecutter.tilt_port}}"
     @echo "Access Storybook at: http://localhost:6006"
     @echo "Press Ctrl+C to stop"
-    tilt up
+    tilt up -v
 
-dev-stop: _check-tilt
+# Local development (without Tilt)
+start-local:
+    @echo "Starting local development server..."
+    @echo "Note: Use 'just dev' for containerized development with Tilt"
+    npm run dev
+
+stop: _check-tilt
     @echo "Stopping development environment..."
     tilt down
 
@@ -78,21 +101,6 @@ type-check: _check-tilt
     @echo "Running type check..."
     tilt exec {{cookiecutter.project_slug}} npm run type-check
 
-# Storybook with Tilt
-storybook: _check-tilt
-    @echo "Starting Storybook..."
-    @echo "Access Storybook at: http://localhost:6006"
-    tilt exec {{cookiecutter.project_slug}} npm run storybook
-
-# Build commands
-build: _check-docker
-    @echo "Building production image..."
-    docker build -t {{cookiecutter.project_slug}}-app:latest .
-
-build-dev: _check-docker
-    @echo "Building development image..."
-    docker build --target development -t {{cookiecutter.project_slug}}-app:dev .
-
 # Clean up
 clean:
     @echo "Cleaning up build artifacts..."
@@ -100,24 +108,3 @@ clean:
     rm -rf dist/
     rm -rf .storybook-static/
     rm -rf coverage/
-
-# Install dependencies (for local development)
-install:
-    @echo "Installing dependencies locally..."
-    npm install
-
-# Local development (without Tilt)
-run-local:
-    @echo "Starting local development server..."
-    @echo "Note: Use 'just dev' for containerized development with Tilt"
-    npm run dev
-
-# Build for production (local)
-build-prod:
-    @echo "Building for production locally..."
-    npm run build
-
-# Preview production build (local)
-preview:
-    @echo "Previewing production build..."
-    npm run preview 

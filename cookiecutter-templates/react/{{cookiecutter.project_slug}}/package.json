@@ -18,7 +18,8 @@
     "check:fix": "biome check --write .",
     "type-check": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "lefthook": "lefthook"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -47,7 +48,8 @@
     "@storybook/addon-interactions": "^7.5.0",
     "@storybook/addon-links": "^7.5.0",
     "@storybook/blocks": "^7.5.0",
-    "@storybook/testing-library": "^0.2.2"
+    "@storybook/testing-library": "^0.2.2",
+    "lefthook": "^1.12.2"
   },
   "engines": {
     "node": ">={{cookiecutter.node_version}}",
