@@ -31,12 +31,16 @@ The following services are designed to work together as part of the marcstreeter
 ### Development & Deployment
 - [Tilt] - Local development environment
 - [Just] - Task runner
-- [Cookiecutter] - Project templating
-- [Cruft] - Template management and updates
+- [Cruft] - Template management using [Cookiecutter] and updates and [why](https://john-miller.dev/posts/cookiecutter-with-cruft-for-platform-engineering/)
 
 ### Service Types
+
+The intention is that as these cookiecutters are updated here, a github action will proactively update the dependent services.
+
 - [FastAPI] - Python web framework
-- [React] - Frontend framework
+- [React] - Frontend framework ready for github pages (still in process)
+- _coming_ Argo Worker
+_ _coming_ Google Cloud Function
 
 ## Quick Start
 
