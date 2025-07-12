@@ -25,7 +25,7 @@ just dev
 - **Material-UI**: Modern component library with theming
 - **Vitest**: Fast unit testing with React Testing Library
 - **Storybook**: Component documentation and development
-- **ESLint + Prettier**: Code quality and formatting
+- **Biome**: Code quality, linting, and formatting
 - **Colocated Tests**: Tests live next to source files
 - **Tilt Integration**: Containerized development with live reloading
 - **Comprehensive Examples**: Real-world patterns and practices

@@ -65,6 +65,14 @@ format-check: _check-tilt
     @echo "Checking code formatting..."
     tilt exec {{cookiecutter.project_slug}} npm run format:check
 
+check: _check-tilt
+    @echo "Running Biome check..."
+    tilt exec {{cookiecutter.project_slug}} npm run check
+
+check-fix: _check-tilt
+    @echo "Fixing Biome issues..."
+    tilt exec {{cookiecutter.project_slug}} npm run check:fix
+
 # Type checking with Tilt
 type-check: _check-tilt
     @echo "Running type check..."
