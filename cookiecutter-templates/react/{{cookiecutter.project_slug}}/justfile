@@ -22,76 +22,94 @@ _check-docker:
         exit 1
     fi
 
-# Development commands
+# Development with Tilt (recommended)
 dev: _check-tilt
+    @echo "Starting development environment with Tilt..."
+    @echo "This will start the app in a container with live reloading."
+    @echo "Access the app at: http://localhost:{{cookiecutter.tilt_port}}"
+    @echo "Access Storybook at: http://localhost:6006"
+    @echo "Press Ctrl+C to stop"
     tilt up
 
 dev-stop: _check-tilt
+    @echo "Stopping development environment..."
     tilt down
+
+# Testing with Tilt
+test: _check-tilt
+    @echo "Running tests in the development container..."
+    tilt exec {{cookiecutter.project_slug}} npm test
+
+test-watch: _check-tilt
+    @echo "Running tests in watch mode..."
+    tilt exec {{cookiecutter.project_slug}} npm run test:ui
+
+test-coverage: _check-tilt
+    @echo "Running tests with coverage..."
+    tilt exec {{cookiecutter.project_slug}} npm run test:coverage
+
+# Linting and formatting with Tilt
+lint: _check-tilt
+    @echo "Running linter..."
+    tilt exec {{cookiecutter.project_slug}} npm run lint
+
+lint-fix: _check-tilt
+    @echo "Fixing linting issues..."
+    tilt exec {{cookiecutter.project_slug}} npm run lint:fix
+
+format: _check-tilt
+    @echo "Formatting code..."
+    tilt exec {{cookiecutter.project_slug}} npm run format
+
+format-check: _check-tilt
+    @echo "Checking code formatting..."
+    tilt exec {{cookiecutter.project_slug}} npm run format:check
+
+# Type checking with Tilt
+type-check: _check-tilt
+    @echo "Running type check..."
+    tilt exec {{cookiecutter.project_slug}} npm run type-check
+
+# Storybook with Tilt
+storybook: _check-tilt
+    @echo "Starting Storybook..."
+    @echo "Access Storybook at: http://localhost:6006"
+    tilt exec {{cookiecutter.project_slug}} npm run storybook
 
 # Build commands
 build: _check-docker
+    @echo "Building production image..."
     docker build -t {{cookiecutter.project_slug}}-app:latest .
 
 build-dev: _check-docker
+    @echo "Building development image..."
     docker build --target development -t {{cookiecutter.project_slug}}-app:dev .
-
-# Test commands
-test:
-    npm test
-
-test-watch:
-    npm run test:ui
-
-test-coverage:
-    npm run test:coverage
-
-# Linting and formatting
-lint:
-    npm run lint
-
-lint-fix:
-    npm run lint:fix
-
-format:
-    npm run format
-
-format-check:
-    npm run format:check
-
-# Type checking
-type-check:
-    npm run type-check
-
-# Storybook
-storybook:
-    npm run storybook
-
-build-storybook:
-    npm run build-storybook
 
 # Clean up
 clean:
+    @echo "Cleaning up build artifacts..."
     rm -rf node_modules/
     rm -rf dist/
     rm -rf .storybook-static/
     rm -rf coverage/
 
-# Install dependencies
+# Install dependencies (for local development)
 install:
+    @echo "Installing dependencies locally..."
     npm install
 
-install-dev:
-    npm install
-
-# Run the application locally
-run:
+# Local development (without Tilt)
+run-local:
+    @echo "Starting local development server..."
+    @echo "Note: Use 'just dev' for containerized development with Tilt"
     npm run dev
 
-# Build for production
+# Build for production (local)
 build-prod:
+    @echo "Building for production locally..."
     npm run build
 
-# Preview production build
+# Preview production build (local)
 preview:
+    @echo "Previewing production build..."
     npm run preview 
