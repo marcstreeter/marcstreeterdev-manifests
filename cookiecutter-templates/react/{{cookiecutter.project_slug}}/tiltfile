@@ -45,10 +45,7 @@ k8s_resource(
         port_forward({{cookiecutter.tilt_storybook_port}}, {{cookiecutter.storybook_port}}, name="{{cookiecutter.project_slug}}-storybook"),
     ],
     resource_deps=[],
-    labels=[
-        'frontend',
-        'react',
-    ],
+    labels=['frontend'],
     links=[
         link('http://localhost:{{cookiecutter.tilt_app_port}}', 'React App'),
         link('http://localhost:{{cookiecutter.tilt_storybook_port}}', 'Storybook'),

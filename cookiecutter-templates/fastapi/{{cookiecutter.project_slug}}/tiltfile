@@ -67,10 +67,7 @@ k8s_resource(
         port_forward({{cookiecutter.tilt_debug_port}}, {{cookiecutter.debug_port}}, name="{{cookiecutter.project_slug}}-debug"),
     ],
     resource_deps=[],
-    labels=[
-        'api',
-        'fastapi',
-    ],
+    labels=['backend'],
     links=[
         link('http://localhost:{{cookiecutter.tilt_api_port}}/docs', 'Swagger UI'),
         link('http://localhost:{{cookiecutter.tilt_api_port}}/redoc', 'ReDoc'),
