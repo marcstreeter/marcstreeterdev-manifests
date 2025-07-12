@@ -14,6 +14,15 @@ This repository contains the central configuration for deploying and managing al
 ## Tech Stack
 Most tools in the tech stack can be installed quickly using [asdf]  or [brew] but choose your own adventure 🤞 to install these tools.
 
+## Associated Services
+
+The following services are managed by this repository and are designed to work together as part of the marcstreeterdev ecosystem:
+
+| Name                                                                 | Service Type | Purpose                                      |
+|----------------------------------------------------------------------|--------------|----------------------------------------------|
+| [marcstreeterdev-backend](https://github.com/marcstreeter/marcstreeterdev-backend)   | FastAPI      | Backend API for business logic and data      |
+| [marcstreeterdev-frontend](https://github.com/marcstreeter/marcstreeterdev-frontend) | React        | Frontend web application (UI)                |
+
 ### Core Infrastructure
 - [Kubernetes] - Container orchestration
 - [Helm] - Kubernetes package manager
