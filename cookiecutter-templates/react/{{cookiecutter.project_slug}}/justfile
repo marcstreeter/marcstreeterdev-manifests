@@ -1,6 +1,11 @@
 # {{cookiecutter.project_name}} justfile
 # Run with: just <command>
 
+# Variables
+namespace := "default"
+deployment := "{{cookiecutter.project_slug}}"
+kubexec := "kubectl -n " + namespace + " exec deploy/" + deployment
+
 # Default recipe to run when no arguments are provided
 default:
     @just --list
@@ -61,45 +66,53 @@ stop: _check-tilt
 # Testing with Tilt
 test: _check-tilt
     @echo "Running tests in the development container..."
-    tilt exec {{cookiecutter.project_slug}} npm test
+    {{kubexec}} -- npm test
 
 test-watch: _check-tilt
     @echo "Running tests in watch mode..."
-    tilt exec {{cookiecutter.project_slug}} npm run test:ui
+    {{kubexec}} -- npm run test:ui
 
 test-coverage: _check-tilt
     @echo "Running tests with coverage..."
-    tilt exec {{cookiecutter.project_slug}} npm run test:coverage
+    {{kubexec}} -- npm run test:coverage
 
 # Linting and formatting with Tilt
 lint: _check-tilt
     @echo "Running linter..."
-    tilt exec {{cookiecutter.project_slug}} npm run lint
+    {{kubexec}} -- npm run lint
 
 lint-fix: _check-tilt
     @echo "Fixing linting issues..."
-    tilt exec {{cookiecutter.project_slug}} npm run lint:fix
+    {{kubexec}} -- npm run lint:fix
 
 format: _check-tilt
     @echo "Formatting code..."
-    tilt exec {{cookiecutter.project_slug}} npm run format
+    {{kubexec}} -- npm run format
 
 format-check: _check-tilt
     @echo "Checking code formatting..."
-    tilt exec {{cookiecutter.project_slug}} npm run format:check
+    {{kubexec}} -- npm run format:check
 
 check: _check-tilt
     @echo "Running Biome check..."
-    tilt exec {{cookiecutter.project_slug}} npm run check
+    {{kubexec}} -- npm run check
 
 check-fix: _check-tilt
     @echo "Fixing Biome issues..."
-    tilt exec {{cookiecutter.project_slug}} npm run check:fix
+    {{kubexec}} -- npm run check:fix
 
 # Type checking with Tilt
 type-check: _check-tilt
     @echo "Running type check..."
-    tilt exec {{cookiecutter.project_slug}} npm run type-check
+    {{kubexec}} -- npm run type-check
+
+# Storybook (local development)
+storybook:
+    @echo "📚 Starting Storybook..."
+    @echo "Access Storybook at: http://localhost:6006"
+    @echo "Opening browser..."
+    @sleep 3 && open http://localhost:6006 || xdg-open http://localhost:6006 || start http://localhost:6006 || echo "Please open http://localhost:6006 in your browser"
+    npm run storybook
 
 # Clean up
 clean:
