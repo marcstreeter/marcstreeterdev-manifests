@@ -24,8 +24,8 @@ buildArgs:
 # Service configuration
 service:
   type: ClusterIP
-  port: 3000
-  targetPort: 3000
+  port: {{cookiecutter.app_port}}
+  targetPort: {{cookiecutter.app_port}}
 
 # Ingress configuration
 ingress:
@@ -55,8 +55,8 @@ env: []
 dev:
   enabled: true
   service:
-    port: 3000
-    targetPort: 3000
+    port: {{cookiecutter.app_port}}
+    targetPort: {{cookiecutter.app_port}}
   buildArgs:
     ENABLE_TESTING: true
     ENABLE_LINTING: true

@@ -63,8 +63,8 @@ k8s_resource(
     '{{cookiecutter.project_slug}}',
     port_forwards=[
         # HOST:PORT, CONTAINER:PORT
-        port_forward(18800, 8000, name="{{cookiecutter.project_slug}}-api"),
-        port_forward(18810, 5678, name="{{cookiecutter.project_slug}}-debug"),
+        port_forward({{cookiecutter.tilt_api_port}}, {{cookiecutter.api_port}}, name="{{cookiecutter.project_slug}}-api"),
+        port_forward({{cookiecutter.tilt_debug_port}}, {{cookiecutter.debug_port}}, name="{{cookiecutter.project_slug}}-debug"),
     ],
     resource_deps=[],
     labels=[
@@ -72,8 +72,8 @@ k8s_resource(
         'fastapi',
     ],
     links=[
-        link('http://localhost:18800/docs', 'Swagger UI'),
-        link('http://localhost:18800/redoc', 'ReDoc'),
-        link('http://localhost:18800/openapi.json', 'OpenAPI JSON'),
+        link('http://localhost:{{cookiecutter.tilt_api_port}}/docs', 'Swagger UI'),
+        link('http://localhost:{{cookiecutter.tilt_api_port}}/redoc', 'ReDoc'),
+        link('http://localhost:{{cookiecutter.tilt_api_port}}/openapi.json', 'OpenAPI JSON'),
     ],
 ) 

@@ -19,5 +19,5 @@ resources:
 
 # Use development service configuration
 service:
-  port: 8000
-  targetPort: 8000
+  port: {{cookiecutter.api_port}}
+  targetPort: {{cookiecutter.api_port}}
