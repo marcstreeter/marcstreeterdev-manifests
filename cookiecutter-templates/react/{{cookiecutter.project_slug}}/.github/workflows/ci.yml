@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+    branches: [main, "feature/**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t {{cookiecutter.project_slug}}-app .
+
+      - name: Run linting in container
+        run: docker run --rm {{cookiecutter.project_slug}}-app npm run lint
+
+      - name: Run tests in container
+        run: docker run --rm {{cookiecutter.project_slug}}-app npm run test
+
+      - name: Build application in container
+        run: docker run --rm {{cookiecutter.project_slug}}-app npm run build 

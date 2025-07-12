@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from {{cookiecutter.project_slug}}.settings import settings
+from core.settings import settings
+from api.health import router as health_router
+from api.example import router as example_router
 
 app = FastAPI(
     title="{{cookiecutter.project_name}}",
@@ -19,20 +21,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def root():
-    """Root endpoint"""
-    return {"message": "Hello from {{cookiecutter.project_name}}!"}
-
-@app.get("/health")
-async def health():
-    """Health check endpoint"""
-    return {"status": "healthy", "service": "{{cookiecutter.project_slug}}"}
+# Include API routes with prefixes
+app.include_router(health_router, prefix="/health", tags=["health"])
+app.include_router(example_router, prefix="/example", tags=["example"])
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "{{cookiecutter.project_slug}}.main:app",
+        "main:app",
         host="0.0.0.0",
         port=8000,
         reload=settings.is_development,
