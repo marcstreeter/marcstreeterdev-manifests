@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.settings import settings
-from api.health import router as health_router
-from api.example import router as example_router
+from routes import api_router
 
 app = FastAPI(
     title="{{cookiecutter.project_name}}",
@@ -21,15 +20,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routes with prefixes
-app.include_router(health_router, prefix="/health", tags=["health"])
-app.include_router(example_router, prefix="/example", tags=["example"])
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.is_development,
-    ) 
+# Include all API routes
+app.include_router(api_router) 
