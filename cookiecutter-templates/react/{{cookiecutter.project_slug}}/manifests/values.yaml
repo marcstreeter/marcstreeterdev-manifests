@@ -21,11 +21,11 @@ buildArgs:
   ENABLE_LINTING: false
   ENABLE_DEBUG: false
 
-# Service configuration (development only)
+# Service configuration
 service:
   type: ClusterIP
-  port: 5173
-  targetPort: 5173
+  port: 3000
+  targetPort: 3000
 
 # Ingress configuration
 ingress:
@@ -55,16 +55,16 @@ env: []
 dev:
   enabled: true
   service:
-    port: 5173
-    targetPort: 5173
+    port: 3000
+    targetPort: 3000
   buildArgs:
     ENABLE_TESTING: true
     ENABLE_LINTING: true
     ENABLE_DEBUG: true
   resources:
     requests:
-      memory: 128Mi
-      cpu: 100m
+      memory: 512Mi
+      cpu: 250m
     limits:
-      memory: 256Mi
-      cpu: 200m 
+      memory: 1Gi
+      cpu: 500m 

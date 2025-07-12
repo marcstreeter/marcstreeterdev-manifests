@@ -1,0 +1,23 @@
+# Development values for {{cookiecutter.project_slug}}
+
+# Global configuration
+global:
+  environment: development
+
+# Development mode enabled
+dev:
+  enabled: true
+
+# Use development resources
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 500m
+
+# Use development service configuration
+service:
+  port: 8000
+  targetPort: 8000
