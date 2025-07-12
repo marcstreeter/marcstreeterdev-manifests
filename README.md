@@ -16,7 +16,7 @@ Most tools in the tech stack can be installed quickly using [asdf]  or [brew] bu
 
 ## Associated Services
 
-The following services are managed by this repository and are designed to work together as part of the marcstreeterdev ecosystem:
+The following services are designed to work together as part of the marcstreeterdev ecosystem:
 
 | Name                                                                 | Service Type | Purpose                                      |
 |----------------------------------------------------------------------|--------------|----------------------------------------------|
