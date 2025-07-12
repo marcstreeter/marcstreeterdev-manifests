@@ -106,14 +106,6 @@ type-check: _check-tilt
     @echo "Running type check..."
     {{kubexec}} -- npm run type-check
 
-# Storybook (local development)
-storybook:
-    @echo "📚 Starting Storybook..."
-    @echo "Access Storybook at: http://localhost:6006"
-    @echo "Opening browser..."
-    @sleep 3 && open http://localhost:6006 || xdg-open http://localhost:6006 || start http://localhost:6006 || echo "Please open http://localhost:6006 in your browser"
-    npm run storybook
-
 # Clean up
 clean:
     @echo "Cleaning up build artifacts..."
