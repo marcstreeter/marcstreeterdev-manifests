@@ -12,14 +12,6 @@ Cruft extends Cookiecutter with powerful template management capabilities:
 - **Conflict Resolution**: Handle template changes like git merges
 - **Version Tracking**: Keep track of which template version each service uses
 
-## Usage
-
-Checkout available commands with just
-```bash
-# shows available commands for creating services, running tilt, etc
-just
-```
-
 ### Configuration
 
 The workflows use:
@@ -30,23 +22,19 @@ The workflows use:
 
 ## Getting Started
 
-After creating a new service:
+Checkout available commands with just
+```bash
+# shows available commands for creating services, running tilt, etc
+just
+```
 
-1. Navigate to the new service directory:
-   ```bash
-   cd ../marcstreeterdev-my-service
-   ```
+## Additional thank you's
 
-2. Install dependencies:
-   ```bash
-   # For FastAPI
-   just install-dev
-   
-   # For React
-   just install-dev
-   ```
+These tools aided easier creation of filler data
 
-3. Start development:
-   ```bash
-   just dev
-   ```
+- [chatgpt](https://chatgpt.com/) for the example logo creation
+- [imagecompressor](https://imagecompressor.com) for taking large logo and reducing colors and optimizing image to 1/10th the size
+- [convertio](https://convertio.co/) for converting simplified image into svg
+- [svgomg](https://optimize.svgomg.net/) for easy svg optimization
+- [pixelmator](https://www.pixelmator.com/pro/) for svg editing and export
+- [cursor](https://cursor.com/) for the excellent editor that enabled much of this project
