@@ -46,7 +46,6 @@ The following services are designed to work together as part of the marcstreeter
    ```bash
    just
    ```
-## Links
 
 [Kubernetes]: https://kubernetes.io/
 [Helm]: https://helm.sh/
