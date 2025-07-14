@@ -3,3 +3,4 @@
 tilt 0.35.0
 helm 3.16.3
 kubectl 1.31.3
+uv 0.7.19

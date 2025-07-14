@@ -25,12 +25,11 @@ _check-docker:
         exit 1; \
     fi
 
-# Helper command to check if cruft is installed
+# Helper command to check if uvx is installed
 _check-cruft:
-    @if ! command -v cruft &> /dev/null; then \
-        echo "❌ Cruft is not installed. Please install cruft first:"; \
-        echo "   pip install cruft"; \
-        echo "   Or: brew install cruft"; \
+    @if ! command -v uvx &> /dev/null; then \
+        echo "❌ uvx is not installed. Please install uv (>=0.7.19) first:"; \
+        echo "   See: https://github.com/astral-sh/uv"; \
         exit 1; \
     fi
 
@@ -52,25 +51,12 @@ nuke: _check-tilt _check-docker
 create-fastapi: _check-cruft
     @echo "🚀 Creating new FastAPI service with Cruft..."
     @read -p "Enter service name (e.g., my-api): " service_name; \
-    cruft create ./cookiecutter-templates/fastapi --output-dir ../ \
-        --config-file ./cookiecutter-templates/fastapi/cookiecutter.json \
+    TEMPLATE_PATH="./cookiecutter-templates/fastapi"; \
+    echo "Using template path: $TEMPLATE_PATH"; \
+    uvx cruft create "$TEMPLATE_PATH" --output-dir ../ \
+        --config-file "./cookiecutter-templates/fastapi/cookiecutter.json" \
         --default-config \
-        project_name="marcstreeterdev-$$service_name" \
-        project_type="fastapi" \
-        project_description="A FastAPI service for marcstreeterdev" \
-        author_name="Marc Streeter" \
-        author_email="marc@marcstreeter.dev" \
-        github_username="marcstreeter" \
-        python_version="3.11" \
-        use_docker="y" \
-        use_helm="y" \
-        use_tilt="y" \
-        use_just="y" \
-        use_pre_commit="y" \
-        use_tests="y" \
-        use_linting="y" \
-        use_debugging="y" \
-        open_source_license="MIT"
+        --extra-context '{"project_name": "marcstreeterdev-'"$$service_name"'", "project_type": "fastapi", "project_description": "A FastAPI service for marcstreeterdev", "author_name": "Marc Streeter", "author_email": "marc@marcstreeter.dev", "github_username": "marcstreeter", "python_version": "3.11", "use_docker": "y", "use_helm": "y", "use_tilt": "y", "use_just": "y", "use_pre_commit": "y", "use_tests": "y", "use_linting": "y", "use_debugging": "y", "open_source_license": "MIT"}'
     @echo "✅ FastAPI service created successfully!"
     @echo "📁 Navigate to: ../marcstreeterdev-$$service_name"
     @echo "🚀 Run: cd ../marcstreeterdev-$$service_name && just dev"
@@ -79,25 +65,12 @@ create-fastapi: _check-cruft
 create-react: _check-cruft
     @echo "🚀 Creating new React service with Cruft..."
     @read -p "Enter service name (e.g., my-ui): " service_name; \
-    cruft create ./cookiecutter-templates/react --output-dir ../ \
-        --config-file ./cookiecutter-templates/react/cookiecutter.json \
+    TEMPLATE_PATH="./cookiecutter-templates/react"; \
+    echo "Using template path: $TEMPLATE_PATH"; \
+    uvx cruft create "$TEMPLATE_PATH" --output-dir ../ \
+        --config-file "./cookiecutter-templates/react/cookiecutter.json" \
         --default-config \
-        project_name="marcstreeterdev-$$service_name" \
-        project_type="react" \
-        project_description="A React service for marcstreeterdev" \
-        author_name="Marc Streeter" \
-        author_email="marc@marcstreeter.dev" \
-        github_username="marcstreeter" \
-        node_version="18" \
-        use_docker="y" \
-        use_helm="y" \
-        use_tilt="y" \
-        use_just="y" \
-        use_pre_commit="y" \
-        use_tests="y" \
-        use_linting="y" \
-        use_debugging="y" \
-        open_source_license="MIT"
+        --extra-context '{"project_name": "marcstreeterdev-'"$$service_name"'", "project_type": "react", "project_description": "A React service for marcstreeterdev", "author_name": "Marc Streeter", "author_email": "marc@marcstreeter.dev", "github_username": "marcstreeter", "node_version": "18", "use_docker": "y", "use_helm": "y", "use_tilt": "y", "use_just": "y", "use_pre_commit": "y", "use_tests": "y", "use_linting": "y", "use_debugging": "y", "open_source_license": "MIT"}'
     @echo "✅ React service created successfully!"
     @echo "📁 Navigate to: ../marcstreeterdev-$$service_name"
     @echo "🚀 Run: cd ../marcstreeterdev-$$service_name && just dev"
@@ -108,7 +81,7 @@ check-updates:
     @for dir in ../marcstreeterdev-*; do \
         if [ -d "$$dir" ] && [ -f "$$dir/.cruft.json" ]; then \
             echo "Checking $$(basename $$dir)..."; \
-            cd "$$dir" && cruft check || echo "  ⚠️  Updates available"; \
+            cd "$$dir" && uvx cruft check || echo "  ⚠️  Updates available"; \
             cd - > /dev/null; \
         fi; \
     done
@@ -119,7 +92,7 @@ update-all-services:
     @for dir in ../marcstreeterdev-*; do \
         if [ -d "$$dir" ] && [ -f "$$dir/.cruft.json" ]; then \
             echo "Updating $$(basename $$dir)..."; \
-            cd "$$dir" && cruft update --skip-apply-ask --refresh-private-variables; \
+            cd "$$dir" && uvx cruft update --skip-apply-ask --refresh-private-variables; \
             cd - > /dev/null; \
         fi; \
     done
