@@ -28,10 +28,11 @@ The following services are designed to work together as part of the marcstreeter
 - [Helm] - Kubernetes package manager
 - [Docker] - Container runtime
 
-### Development & Deployment
+### Requirements
 - [Tilt] - Local development environment
-- [Just] - Task runner
+- [Just] - Task runner (optional but highly suggested)
 - [Cruft] - Template management using [Cookiecutter] and updates and [why](https://john-miller.dev/posts/cookiecutter-with-cruft-for-platform-engineering/)
+- [UV](see .tool-versions for the required version)
 
 ### Service Types
 
@@ -62,3 +63,4 @@ _ _coming_ Google Cloud Function
 [React]: https://react.dev/
 [asdf]: https://asdf-vm.com/
 [brew]: https://brew.sh/
+[UV]: https://docs.astral.sh/uv/

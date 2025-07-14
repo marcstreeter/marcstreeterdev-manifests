@@ -56,7 +56,7 @@ create-fastapi: _check-cruft
     uvx cruft create "$TEMPLATE_PATH" --output-dir ../ \
         --config-file "./cookiecutter-templates/fastapi/cookiecutter.json" \
         --default-config \
-        --extra-context '{"project_name": "marcstreeterdev-'"$$service_name"'", "project_type": "fastapi", "project_description": "A FastAPI service for marcstreeterdev", "author_name": "Marc Streeter", "author_email": "marc@marcstreeter.dev", "github_username": "marcstreeter", "python_version": "3.11", "use_docker": "y", "use_helm": "y", "use_tilt": "y", "use_just": "y", "use_pre_commit": "y", "use_tests": "y", "use_linting": "y", "use_debugging": "y", "open_source_license": "MIT"}'
+        --extra-context '{"project_name": "marcstreeterdev-'"$service_name"'", "project_type": "fastapi", "project_description": "A FastAPI service for marcstreeterdev", "author_name": "Marc Streeter", "author_email": "marc@marcstreeter.dev", "github_username": "marcstreeter", "python_version": "3.11", "use_docker": "y", "use_helm": "y", "use_tilt": "y", "use_just": "y", "use_pre_commit": "y", "use_tests": "y", "use_linting": "y", "use_debugging": "y", "open_source_license": "MIT"}'
     @echo "✅ FastAPI service created successfully!"
     @echo "📁 Navigate to: ../marcstreeterdev-$$service_name"
     @echo "🚀 Run: cd ../marcstreeterdev-$$service_name && just dev"
@@ -65,12 +65,16 @@ create-fastapi: _check-cruft
 create-react: _check-cruft
     @echo "🚀 Creating new React service with Cruft..."
     @read -p "Enter service name (e.g., my-ui): " service_name; \
-    TEMPLATE_PATH="./cookiecutter-templates/react"; \
+    TEMPLATE_PATH="./cookiecutter-templates/ghpreact"; \
     echo "Using template path: $TEMPLATE_PATH"; \
     uvx cruft create "$TEMPLATE_PATH" --output-dir ../ \
-        --config-file "./cookiecutter-templates/react/cookiecutter.json" \
+        --config-file "./cookiecutter-templates/ghpreact/cookiecutter.json" \
         --default-config \
-        --extra-context '{"project_name": "marcstreeterdev-'"$$service_name"'", "project_type": "react", "project_description": "A React service for marcstreeterdev", "author_name": "Marc Streeter", "author_email": "marc@marcstreeter.dev", "github_username": "marcstreeter", "node_version": "18", "use_docker": "y", "use_helm": "y", "use_tilt": "y", "use_just": "y", "use_pre_commit": "y", "use_tests": "y", "use_linting": "y", "use_debugging": "y", "open_source_license": "MIT"}'
+        --extra-context '{\
+          "project_name": "marcstreeterdev-'"$service_name"'", \
+          "project_type": "react", \
+          "project_description": "A React service for marcstreeterdev" \
+        }'
     @echo "✅ React service created successfully!"
     @echo "📁 Navigate to: ../marcstreeterdev-$$service_name"
     @echo "🚀 Run: cd ../marcstreeterdev-$$service_name && just dev"
@@ -108,3 +112,9 @@ migrate-to-cruft: _check-cruft
         echo "Example: just migrate-to-cruft SERVICE=marcstreeterdev-backend"; \
         exit 1; \
     fi
+
+# Setup command to initialize development environment
+setup:
+    @echo "🔄 Initializing and updating git submodules..."
+    git submodule update --init --recursive
+    @echo "✅ Submodules are up to date."
