@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
+  base: '/{{cookiecutter.project_slug}}/', // Set base for GitHub Pages
   plugins: [react()],
   resolve: {
     alias: {
