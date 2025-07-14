@@ -1,0 +1,6 @@
+[submodule "cookiecutter-templates/fastapi"]
+	path = cookiecutter-templates/fastapi
+	url = https://github.com/marcstreeter/marcstreeterdev-manifests-fastapi
+[submodule "cookiecutter-templates/ghpreact"]
+	path = cookiecutter-templates/ghpreact
+	url = https://github.com/marcstreeter/marcstreeterdev-manifests-ghpreact
