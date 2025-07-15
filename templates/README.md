@@ -1,16 +1,19 @@
-# marcstreeterdev Cookiecutter Templates with Cruft
+# marcstreeterdev Copier Templates
 
-This directory contains [Cookiecutter](https://cookiecutter.readthedocs.io/en/stable/) templates for creating new services in the marcstreeterdev project, enhanced with [Cruft](https://cruft.github.io/cruft/) for template management and automated updates.
+This directory contains Copier templates for creating new services in the marcstreeterdev project.
 
-## Why Cruft?
+## Why Copier?
 
-Cruft extends Cookiecutter with powerful template management capabilities:
+We chose Copier over Cruft/Cookiecutter for template management due to its healthier, more active community and modern development practices:
 
-- **Template Validation**: Check if projects are up-to-date with `cruft check`
-- **Automatic Updates**: Update projects with `cruft update` 
+- **Active Development**: Copier has a more vibrant, actively maintained community
+- **Modern Python**: Built with modern Python practices and better dependency management
+- **Template Validation**: Check if projects are up-to-date with `copier update --dry-run`
+- **Automatic Updates**: Update projects with `copier update`
 - **GitHub Actions Integration**: Automate updates across all your services
-- **Conflict Resolution**: Handle template changes like git merges
+- **Conflict Resolution**: Handle template changes with intelligent merging
 - **Version Tracking**: Keep track of which template version each service uses
+- **Better UX**: More intuitive CLI and better error messages
 
 ### Configuration
 
