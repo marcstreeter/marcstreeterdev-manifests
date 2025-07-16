@@ -51,27 +51,28 @@ nuke: _check-tilt
 create-fastapi: _check-uvx
     @echo "🚀 Creating new FastAPI service from template..."
     @read -p "Enter service name (e.g., my-api): " service_name; \
-    uvx copier copy ./cookiecutter-templates/fastapi ../marcstreeterdev-$service_name --data project_name=$service_name
-    @echo "✅ FastAPI service created successfully!"
-    @echo "📁 Navigate to: ../marcstreeterdev-$service_name"
-    @echo "🚀 Run: cd ../marcstreeterdev-$service_name && just dev"
+    @sh -c 'read -p "Enter service name (e.g., my-api): " service_name; \
+        uvx copier copy ./templates/fastapi ../ --data project_name=$service_name && \
+        echo "✅ FastAPI service created successfully!" && \
+        echo "📁 Navigate to: ../$service_name" && \
+        echo "🚀 Run: cd ../$service_name && just start"'
 
 # Create a new React service from template
 create-react: _check-uvx
     @echo "🚀 Creating new React service from template..."
     @sh -c 'read -p "Enter service name (e.g., my-ui): " service_name; \
-        uvx copier copy ./cookiecutter-templates/ghpreact ../marcstreeterdev-$service_name --data project_name=$service_name && \
+        uvx copier copy ./templates/ghpreact ../ --data project_name=$service_name && \
         echo "✅ React service created successfully!" && \
-        echo "📁 Navigate to: ../marcstreeterdev-$service_name" && \
-        echo "🚀 Run: cd ../marcstreeterdev-$service_name && just dev"'
+        echo "📁 Navigate to: ../$service_name" && \
+        echo "🚀 Run: cd ../$service_name && just start"'
 
 # Check if any services need updates from the central template
 check-updates:
     @echo "🔍 Checking for template updates across all services..."
     @for dir in ../marcstreeterdev-*; do \
-        if [ -d "$$dir" ] && [ -f "$$dir/.cruft.json" ]; then \
+        if [ -d "$$dir" ] && [ -f "$$dir/.copier-answers.yml" ]; then \
             echo "Checking $$(basename $$dir)..."; \
-            cd "$$dir" && uvx cruft check || echo "  ⚠️  Updates available"; \
+            cd "$$dir" && uvx copier update --dry-run || echo "  ⚠️  Updates available"; \
             cd - > /dev/null; \
         fi; \
     done
@@ -80,9 +81,9 @@ check-updates:
 update-all-services:
     @echo "🔄 Updating all services from central template..."
     @for dir in ../marcstreeterdev-*; do \
-        if [ -d "$$dir" ] && [ -f "$$dir/.cruft.json" ]; then \
+        if [ -d "$$dir" ] && [ -f "$$dir/.copier-answers.yml" ]; then \
             echo "Updating $$(basename $$dir)..."; \
-            cd "$$dir" && uvx cruft update --skip-apply-ask --refresh-private-variables; \
+            cd "$$dir" && uvx copier update; \
             cd - > /dev/null; \
         fi; \
     done
