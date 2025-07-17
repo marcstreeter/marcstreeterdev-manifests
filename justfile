@@ -33,6 +33,18 @@ _check-uvx:
         exit 1; \
     fi
 
+# Helper command to check if GitHub CLI is installed and authenticated
+_check-gh:
+    @if ! command -v gh &> /dev/null; then \
+        echo "❌ GitHub CLI is not installed. Please install gh first:"; \
+        echo "   Visit: https://cli.github.com/"; \
+        exit 1; \
+    fi
+    @if ! gh auth status &> /dev/null; then \
+        echo "❌ GitHub CLI is not authenticated. Please run 'gh auth login' first."; \
+        exit 1; \
+    fi
+
 # Start local development with verbose logging
 start: _check-tilt
     tilt up --verbose
@@ -58,11 +70,20 @@ create-fastapi: _check-uvx
         echo "🚀 Run: cd ../$service_name && just start"'
 
 # Create a new React service from template
-create-react: _check-uvx
+create-react: _check-uvx _check-gh
     @echo "🚀 Creating new React service from template..."
     @sh -c 'read -p "Enter service name (e.g., my-ui): " service_name; \
         uvx copier copy ./templates/ghpreact ../ --data project_name=$service_name && \
         echo "✅ React service created successfully!" && \
+        cd ../$service_name && \
+        git init && \
+        git checkout -b main && \
+        git add . && \
+        git commit -m "Initial commit" && \
+        gh repo create $service_name --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; } && \
+        git push -u origin main && \
+        echo "🌐 Enabling GitHub Pages..." && \
+        gh api repos/$(gh api user --jq .login)/$service_name/pages --method POST -f "source[type]=branch" -f "source[branch]=main" || echo "⚠️ GitHub Pages setup failed (may already be enabled)" && \
         echo "📁 Navigate to: ../$service_name" && \
         echo "🚀 Run: cd ../$service_name && just start"'
 
