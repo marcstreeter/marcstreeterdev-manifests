@@ -1,5 +1,9 @@
 # Manifests development tasks
 
+# Variables
+NAME := "myApp" + `date +%s`
+PUSH := "false"
+
 # Default task
 default:
     @just --list
@@ -70,22 +74,35 @@ create-fastapi: _check-uvx
         echo "🚀 Run: cd ../$service_name && just start"'
 
 # Create a new React service from template
-create-react: _check-uvx _check-gh
+# Usage: "just --set NAME bolo create-react" || "just create-react bolo"
+create-react name=NAME push=PUSH: _check-uvx _check-gh
     @echo "🚀 Creating new React service from template..."
-    @sh -c 'read -p "Enter service name (e.g., my-ui): " service_name; \
-        uvx copier copy ./templates/ghpreact ../ --data project_name=$service_name && \
-        echo "✅ React service created successfully!" && \
-        cd ../$service_name && \
-        git init && \
-        git checkout -b main && \
-        git add . && \
-        git commit -m "Initial commit" && \
-        gh repo create $service_name --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; } && \
+    @echo "Service name: {{name}}"
+    @uvx copier copy ./templates/ghpreact ../ --data project_name="{{name}}" && \
+    echo "✅ React service created successfully!" && \
+    cd ../{{name}} && \
+    git init && \
+    just setup && \
+    just check-fix-local && \
+    git checkout -b main && \
+    git add . && \
+    git commit -m "Initial commit" && \
+    if [ "{{push}}" = "true" ]; then \
+        echo "🌐 Setting up GitHub repository and Pages..." && \
+        gh repo create {{name}} --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; } && \
         git push -u origin main && \
-        echo "🌐 Enabling GitHub Pages..." && \
-        gh api repos/$(gh api user --jq .login)/$service_name/pages --method POST -f "source[type]=branch" -f "source[branch]=main" || echo "⚠️ GitHub Pages setup failed (may already be enabled)" && \
-        echo "📁 Navigate to: ../$service_name" && \
-        echo "🚀 Run: cd ../$service_name && just start"'
+        gh api repos/$(gh api user --jq .login)/{{name}}/pages \
+          --method POST \
+          -f "source[type]=branch" \
+          -f "source[branch]=main" \
+          -f "build_type=workflow" \
+          || echo "⚠️ GitHub Pages setup failed (may already be enabled)" && \
+        echo "🌐 GitHub Pages enabled at: https://$(gh api user --jq .login).github.io/{{name}}/"; \
+    else \
+        echo "📝 GitHub deployment skipped (run with push=true to enable)"; \
+    fi && \
+    echo "📁 Navigate to: ../{{name}}" && \
+    echo "🚀 Run: cd ../{{name}} && just start"
 
 # Check if any services need updates from the central template
 check-updates:
@@ -99,7 +116,7 @@ check-updates:
     done
 
 # Update all services from the central template
-update-all-services:
+update-all-services: _check-uvx
     @echo "🔄 Updating all services from central template..."
     @for dir in ../marcstreeterdev-*; do \
         if [ -d "$$dir" ] && [ -f "$$dir/.copier-answers.yml" ]; then \

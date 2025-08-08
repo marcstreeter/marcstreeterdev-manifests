@@ -37,7 +37,9 @@ These tools aided easier creation of filler data
 
 - [chatgpt](https://chatgpt.com/) for the example logo creation
 - [imagecompressor](https://imagecompressor.com) for taking large logo and reducing colors and optimizing image to 1/10th the size
-- [convertio](https://convertio.co/) for converting simplified image into svg
+- [pngtowebp](https://cloudconvert.com/png-to-webp) for converting to webp (super compressed)
+- [convertio](https://convertio.co/) for converting simplified image into svg (black and white)
+- [adobe express](https://new.express.adobe.com/tools/convert-to-svg) for converting simplified image to svg (full color)
 - [svgomg](https://optimize.svgomg.net/) for easy svg optimization
 - [pixelmator](https://www.pixelmator.com/pro/) for svg editing and export
 - [cursor](https://cursor.com/) for the excellent editor that enabled much of this project
