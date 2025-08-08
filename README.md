@@ -31,8 +31,9 @@ The following services are designed to work together as part of the marcstreeter
 ### Requirements
 - [Tilt] - Local development environment
 - [Just] - Task runner (optional but highly suggested)
-- [Cruft] - Template management using [Cookiecutter] and updates and [why](https://john-miller.dev/posts/cookiecutter-with-cruft-for-platform-engineering/)
+- [Copier] - Template management and updates and [why](https://john-miller.dev/posts/cookiecutter-with-cruft-for-platform-engineering/)
 - [UV](see .tool-versions for the required version)
+- [gh] used so we can automate github activities (creating repository/github pages)
 
 ### Service Types
 
@@ -58,9 +59,10 @@ _ _coming_ Google Cloud Function
 [Tilt]: https://tilt.dev/
 [Just]: https://github.com/casey/just
 [Cookiecutter]: https://cookiecutter.readthedocs.io/en/stable/
-[Cruft]: https://cruft.github.io/cruft/
+[Copier]: https://copier.readthedocs.io/en/stable/
 [FastAPI]: https://fastapi.tiangolo.com/
 [React]: https://react.dev/
 [asdf]: https://asdf-vm.com/
 [brew]: https://brew.sh/
 [UV]: https://docs.astral.sh/uv/
+[gh]: https://cli.github.com/
