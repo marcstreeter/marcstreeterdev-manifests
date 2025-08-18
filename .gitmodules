@@ -4,3 +4,6 @@
 [submodule "templates/ghpreact"]
 	path = templates/ghpreact
 	url = https://github.com/marcstreeter/marcstreeterdev-manifests-ghpreact
+[submodule "templates/lambdapython"]
+	path = templates/lambdapython
+	url = https://github.com/marcstreeter/marcstreeterdev-manifests-lambdapython
