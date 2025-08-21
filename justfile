@@ -107,10 +107,34 @@ create-react name=NAME push=PUSH: _check-uvx _check-gh
 # Create a new Lambda Python service from template
 # Usage: "just --set NAME bolo create-lambda-python" || "just create-lambda-python bolo"
 create-lambda-python name=NAME push=PUSH: _check-uvx _check-gh
-    @echo "🚀 Creating new React service from template..."
+    @echo "🚀 Creating new Lambda Python service from template..."
     @echo "Service name: {{name}}"
     @uvx copier copy ./templates/lambdapython ../ --data project_name="{{name}}" && \
     echo "✅ Lambda Python service created successfully!" && \
+    cd ../{{name}} && \
+    git init && \
+    just prepare && \
+    git checkout -b main && \
+    git add . && \
+    git commit -m "Initial commit" && \
+    if [ "{{push}}" = "true" ]; then \
+        echo "🌐 Setting up GitHub repository and Pages..." && \
+        gh repo create {{name}} --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; } && \
+        git push -u origin main && \
+        echo "🌐 GitHub Repository created at: https://github.com/$(gh api user --jq .login)/{{name}}"; \
+    else \
+        echo "📝 GitHub deployment skipped (run with push=true to enable)"; \
+    fi && \
+    echo "📁 Navigate to: ../{{name}}" && \
+    echo "🚀 Run: cd ../{{name}} && just start"
+
+# Create a new Lambda Golang service from template
+# Usage: "just --set NAME bolo create-lambda-golang" || "just create-lambda-golang bolo"
+create-lambda-golang name=NAME push=PUSH: _check-uvx _check-gh
+    @echo "🚀 Creating new Lambda Golang service from template..."
+    @echo "Service name: {{name}}"
+    @uvx copier copy ./templates/lambdagolang ../ --data project_name="{{name}}" && \
+    echo "✅ Lambda Golang service created successfully!" && \
     cd ../{{name}} && \
     git init && \
     just prepare && \

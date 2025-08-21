@@ -7,3 +7,6 @@
 [submodule "templates/lambdapython"]
 	path = templates/lambdapython
 	url = https://github.com/marcstreeter/marcstreeterdev-manifests-lambdapython
+[submodule "templates/lambdagolang"]
+	path = templates/lambdagolang
+	url = https://github.com/marcstreeter/marcstreeterdev-manifests-lambdagolang
