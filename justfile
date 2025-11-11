@@ -1,8 +1,11 @@
 # Manifests development tasks
 
+set shell := ["/usr/bin/env", "bash", "-eu", "-o", "pipefail", "-c"]
+
 # Variables
 NAME := "myApp" + `date +%s`
 PUSH := "false"
+PAGES := "false"
 
 # Default task
 default:
@@ -49,6 +52,83 @@ _check-gh:
         exit 1; \
     fi
 
+# Helper function to publish repository to GitHub
+_publish-repo name:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    CURRENT_USER="$(gh api user --jq .login)"
+    ORGS=()
+    while IFS= read -r org; do
+        ORGS+=("$org")
+    done < <(gh api user/orgs --jq '.[].login')
+
+    OPTIONS=("$CURRENT_USER")
+    if [ "${#ORGS[@]}" -gt 0 ]; then
+        OPTIONS+=("${ORGS[@]}")
+    fi
+
+    echo "👤 Select GitHub owner for repository:"
+    select OPTION in "${OPTIONS[@]}"; do
+        if [ -n "$OPTION" ]; then
+            OWNER="$OPTION"
+            break
+        fi
+        echo "Invalid selection, please try again."
+    done
+
+    REPO_SLUG="${OWNER}/{{name}}"
+
+    echo "🌐 Setting up GitHub repository for ${REPO_SLUG}..."
+    gh repo create "${REPO_SLUG}" --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; }
+    git remote set-url origin "git@github.com:${REPO_SLUG}.git"
+    git push -u origin main
+    echo "🌐 GitHub Repository created at: https://github.com/${REPO_SLUG}"
+
+# Helper function to enable GitHub Pages
+_publish-pages name:
+    #!/usr/bin/env bash
+    echo "🌐 Setting up GitHub Pages..."
+    CURRENT_USER="$(gh api user --jq .login)"
+    ORGS=()
+    while IFS= read -r org; do
+        ORGS+=("$org")
+    done < <(gh api user/orgs --jq '.[].login')
+
+    OPTIONS=("$CURRENT_USER")
+    if [ "${#ORGS[@]}" -gt 0 ]; then
+        OPTIONS+=("${ORGS[@]}")
+    fi
+
+    echo "👤 Select GitHub owner for repository:"
+    select OPTION in "${OPTIONS[@]}"; do
+        if [ -n "$OPTION" ]; then
+            OWNER="$OPTION"
+            break
+        fi
+        echo "Invalid selection, please try again."
+    done
+    REPO_SLUG="${OWNER}/{{name}}"
+    
+    gh api repos/${REPO_SLUG}/pages \
+      --method POST \
+      -f "source[type]=branch" \
+      -f "source[branch]=main" \
+      -f "build_type=workflow" \
+      || echo "⚠️ GitHub Pages setup failed (may already be enabled)"
+    echo "🌐 GitHub Pages enabled at: https://$(gh api user --jq .login).github.io/{{name}}/"
+
+# Helper function to establish repository locally, is assumed to be called inside destination repo that has its own justfile
+_initialize-repo name:
+    #!/usr/bin/env bash
+    echo "🌐 Initializing repository..."-
+    git init && \
+    # expects to call destination repository's justfile's hook-post-git-init function
+    just hook-post-git-init && \
+    git checkout -b main && \
+    git add . && \
+    git commit -m "Initial commit"
+
 # Start local development with verbose logging
 start: _check-tilt
     tilt up --verbose
@@ -64,14 +144,20 @@ nuke: _check-tilt
     @echo "✅ Cleanup complete!"
 
 # Create a new FastAPI service from template
-create-fastapi: _check-uvx
+# Usage: "just --set NAME bolo create-fastapi" || "just create-fastapi bolo"
+create-fastapi name=NAME push=PUSH: _check-uvx _check-gh
     @echo "🚀 Creating new FastAPI service from template..."
-    @read -p "Enter service name (e.g., my-api): " service_name; \
-    @sh -c 'read -p "Enter service name (e.g., my-api): " service_name; \
-        uvx copier copy ./templates/fastapi ../ --data project_name=$service_name && \
-        echo "✅ FastAPI service created successfully!" && \
-        echo "📁 Navigate to: ../$service_name" && \
-        echo "🚀 Run: cd ../$service_name && just start"'
+    @echo "Service name: {{name}}"
+    @uvx copier copy ./templates/fastapi ../ --data project_name="{{name}}" && \
+    echo "✅ FastAPI service created successfully!" && \
+    just --justfile ./justfile --working-directory ../{{name}} _initialize-repo {{name}} && \
+    if [ "{{push}}" = "true" ]; then \
+        just --justfile ./justfile --working-directory ../{{name}} _publish-repo {{name}}; \
+    else \
+        echo "📝 GitHub deployment skipped (run with push=true to enable)"; \
+    fi && \
+    echo "📁 Navigate to: ../{{name}}" && \
+    echo "🚀 Run: cd ../{{name}} && just start"
 
 # Create a new React service from template
 # Usage: "just --set NAME bolo create-react" || "just create-react bolo"
@@ -80,24 +166,10 @@ create-react name=NAME push=PUSH: _check-uvx _check-gh
     @echo "Service name: {{name}}"
     @uvx copier copy ./templates/ghpreact ../ --data project_name="{{name}}" && \
     echo "✅ React service created successfully!" && \
-    cd ../{{name}} && \
-    git init && \
-    just setup && \
-    just check-fix-local && \
-    git checkout -b main && \
-    git add . && \
-    git commit -m "Initial commit" && \
+    just --justfile ./justfile --working-directory ../{{name}} _initialize-repo {{name}} && \
     if [ "{{push}}" = "true" ]; then \
-        echo "🌐 Setting up GitHub repository and Pages..." && \
-        gh repo create {{name}} --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; } && \
-        git push -u origin main && \
-        gh api repos/$(gh api user --jq .login)/{{name}}/pages \
-          --method POST \
-          -f "source[type]=branch" \
-          -f "source[branch]=main" \
-          -f "build_type=workflow" \
-          || echo "⚠️ GitHub Pages setup failed (may already be enabled)" && \
-        echo "🌐 GitHub Pages enabled at: https://$(gh api user --jq .login).github.io/{{name}}/"; \
+        just --justfile ./justfile --working-directory ../{{name}} _publish-repo {{name}} && \
+        just --justfile ./justfile --working-directory ../{{name}} _publish-pages {{name}}; \
     else \
         echo "📝 GitHub deployment skipped (run with push=true to enable)"; \
     fi && \
@@ -118,10 +190,7 @@ create-lambda-python name=NAME push=PUSH: _check-uvx _check-gh
     git add . && \
     git commit -m "Initial commit" && \
     if [ "{{push}}" = "true" ]; then \
-        echo "🌐 Setting up GitHub repository and Pages..." && \
-        gh repo create {{name}} --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; } && \
-        git push -u origin main && \
-        echo "🌐 GitHub Repository created at: https://github.com/$(gh api user --jq .login)/{{name}}"; \
+        just _publish-repo {{name}}; \
     else \
         echo "📝 GitHub deployment skipped (run with push=true to enable)"; \
     fi && \
@@ -142,10 +211,7 @@ create-lambda-golang name=NAME push=PUSH: _check-uvx _check-gh
     git add . && \
     git commit -m "Initial commit" && \
     if [ "{{push}}" = "true" ]; then \
-        echo "🌐 Setting up GitHub repository and Pages..." && \
-        gh repo create {{name}} --source=. --public --push || { echo "❌ GitHub repo creation failed (maybe already exists?)"; exit 1; } && \
-        git push -u origin main && \
-        echo "🌐 GitHub Repository created at: https://github.com/$(gh api user --jq .login)/{{name}}"; \
+        just _publish-repo {{name}}; \
     else \
         echo "📝 GitHub deployment skipped (run with push=true to enable)"; \
     fi && \
