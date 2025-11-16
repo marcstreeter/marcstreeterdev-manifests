@@ -15,10 +15,11 @@ This repository contains the central configuration for deploying and managing al
 
 The following services are designed to work together as part of the marcstreeterdev ecosystem:
 
-| Name                                                                 | Service Type | Purpose                                      |
-|----------------------------------------------------------------------|--------------|----------------------------------------------|
-| [marcstreeterdev-backend](https://github.com/marcstreeter/marcstreeterdev-backend)   | FastAPI      | Backend API for business logic and data      |
-| [marcstreeterdev-frontend](https://github.com/marcstreeter/marcstreeterdev-frontend) | React        | Frontend web application (UI)
+| Name                                    | Service Type | Purpose                                      |
+|-----------------------------------------|--------------|----------------------------------------------|
+| [marcstreeterdev-backend]               | FastAPI      | Backend API for business logic and data      |
+| [marcstreeterdev-frontend]              | React        | Frontend web application (UI)                |
+
 
 ## Tech Stack
 Tech stack is easily reproduced using [asdf] or [brew] but choose your own adventure 🤞.
@@ -31,7 +32,7 @@ Tech stack is easily reproduced using [asdf] or [brew] but choose your own adven
 ### Requirements
 - [Tilt] - Local development environment
 - [Just] - Task runner (optional but highly suggested)
-- [Copier] - Template management and updates and [why](https://john-miller.dev/posts/cookiecutter-with-cruft-for-platform-engineering/)
+- [Copier] - Template management and updates ( checkout [why we use templating] )
 - [UV] - (see asdf's .tool-versions for the required version)
 - [gh] - used so we can automate github activities (creating repository/github pages)
 
@@ -40,7 +41,7 @@ Tech stack is easily reproduced using [asdf] or [brew] but choose your own adven
 The intention is that as these templates are updated here, a github action will proactively update the dependent services.
 
 - [FastAPI] - Python web framework
-- [React] - Frontend framework ready for github pages (still in process)
+- [React] - Frontend framework ready for github pages
 - _coming_ Argo Worker
 _ _coming_ Google Cloud Function
 
@@ -66,3 +67,6 @@ _ _coming_ Google Cloud Function
 [brew]: https://brew.sh/
 [UV]: https://docs.astral.sh/uv/
 [gh]: https://cli.github.com/
+[marcstreeterdev-backend]: https://github.com/marcstreeter/marcstreeterdev-backend
+[marcstreeterdev-frontend]: https://github.com/marcstreeter/marcstreeterdev-frontend
+[why we use templating]: https://john-miller.dev/posts/cookiecutter-with-cruft-for-platform-engineering/
